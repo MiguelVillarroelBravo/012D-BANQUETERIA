@@ -32,7 +32,7 @@ import com.example.banqueteriapaolicias.ui.viewmodel.RegistroViewModel
 
 @Composable
 fun RegistroScreen(
-    onNavigateToAgenda: () -> Unit,
+    onNavigateToLogin: () -> Unit,
     viewModel: RegistroViewModel = viewModel()
 ) {
     val state = viewModel.uiState
@@ -92,8 +92,12 @@ fun RegistroScreen(
             Button(
                 onClick = {
                     viewModel.onRegisterClick {
-                        Toast.makeText(context, "Registro exitoso", Toast.LENGTH_SHORT).show()
-                        onNavigateToAgenda()
+                        Toast.makeText(
+                            context,
+                            "Registro exitoso. Inicia sesión.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        onNavigateToLogin()
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
