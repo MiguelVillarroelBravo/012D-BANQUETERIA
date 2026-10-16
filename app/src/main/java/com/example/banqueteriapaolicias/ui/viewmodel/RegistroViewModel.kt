@@ -1,11 +1,16 @@
 package com.example.banqueteriapaolicias.ui.viewmodel
 
+import android.content.Context
 import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.banqueteriapaolicias.data.local.database.AppDatabase
+import com.example.banqueteriapaolicias.data.local.entity.UsuarioEntity
 import com.example.banqueteriapaolicias.model.RegistroModel
+import kotlinx.coroutines.launch
 
 class RegistroViewModel : ViewModel() {
 
@@ -32,7 +37,7 @@ class RegistroViewModel : ViewModel() {
         uiState = uiState.copy(confirmarClave = confirmarClave, errorConfirmar = null)
     }
 
-    fun onRegisterClick(onSuccess: () -> Unit) {
+    fun onRegisterClick(context: Context, onSuccess: () -> Unit) {
         val s = uiState
 
         val errorNombre = if (s.nombre.isBlank()) "Ingresa tu nombre" else null
@@ -52,6 +57,24 @@ class RegistroViewModel : ViewModel() {
         val hayErrores = listOf(errorNombre, errorCorreo, errorTelefono, errorClave, errorConfirmar)
             .any { it != null }
 
-        if (!hayErrores) onSuccess()
+        if (!hayErrores) {
+            viewModelScope.launch {
+                val db = com.example.banqueteriapaolicias.data.local.database.AppDatabase.getDatabase(context)
+                val existingUser = db.usuarioDao().getUserByEmail(s.correo)
+
+                if (existingUser != null) {
+                    uiState = uiState.copy(errorCorreo = "El correo ya está registrado.")
+                } else {
+                    val newUser = com.example.banqueteriapaolicias.data.local.entity.UsuarioEntity(
+                        nombre = s.nombre,
+                        correo = s.correo,
+                        telefono = s.telefono,
+                        clave = s.clave
+                    )
+                    db.usuarioDao().registerUser(newUser)
+                    onSuccess()
+                }
+            }
+        }
     }
 }
