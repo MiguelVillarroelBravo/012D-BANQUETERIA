@@ -91,12 +91,8 @@ fun RegistroScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
-                    viewModel.onRegisterClick {
-                        Toast.makeText(
-                            context,
-                            "Registro exitoso. Inicia sesión.",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                    viewModel.onRegisterClick(context) {
+                        Toast.makeText(context, "Registro exitoso. Por favor inicia sesión.", Toast.LENGTH_SHORT).show()
                         onNavigateToLogin()
                     }
                 },

@@ -83,8 +83,8 @@ fun LoginScreen(
 
             Button(
                 onClick = {
-                    viewModel.onLoginClick {
-                        Toast.makeText(context, "¡Bienvenido!", Toast.LENGTH_SHORT).show()
+                    viewModel.onLoginClick(context) {
+                        Toast.makeText(context, "¡Bienvenido de nuevo!", Toast.LENGTH_SHORT).show()
                         onNavigateToAgenda()
                     }
                 },
