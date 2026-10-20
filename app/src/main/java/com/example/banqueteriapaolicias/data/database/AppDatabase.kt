@@ -1,4 +1,4 @@
-package com.example.banqueteriapaolicias.data.local.database
+package com.example.banqueteriapaolicias.data.database
 
 import android.content.Context
 import androidx.room.Database

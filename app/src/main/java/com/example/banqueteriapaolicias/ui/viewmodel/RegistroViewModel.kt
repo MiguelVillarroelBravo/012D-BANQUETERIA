@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.banqueteriapaolicias.data.local.database.AppDatabase
+import com.example.banqueteriapaolicias.data.database.AppDatabase
 import com.example.banqueteriapaolicias.data.local.entity.UsuarioEntity
 import com.example.banqueteriapaolicias.model.RegistroModel
 import kotlinx.coroutines.launch
@@ -59,7 +59,7 @@ class RegistroViewModel : ViewModel() {
 
         if (!hayErrores) {
             viewModelScope.launch {
-                val db = com.example.banqueteriapaolicias.data.local.database.AppDatabase.getDatabase(context)
+                val db = com.example.banqueteriapaolicias.data.database.AppDatabase.getDatabase(context)
                 val existingUser = db.usuarioDao().getUserByEmail(s.correo)
 
                 if (existingUser != null) {

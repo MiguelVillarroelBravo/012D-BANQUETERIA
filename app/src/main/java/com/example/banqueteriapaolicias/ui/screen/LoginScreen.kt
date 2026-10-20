@@ -1,6 +1,7 @@
 package com.example.banqueteriapaolicias.ui.screen
 
 import android.widget.Toast
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,18 +26,23 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.banqueteriapaolicias.ui.components.Footer
+import com.example.banqueteriapaolicias.ui.components.Header
 import com.example.banqueteriapaolicias.ui.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
-    onNavigateToAgenda: () -> Unit,
+    onLoginSuccess: () -> Unit,
     viewModel: LoginViewModel = viewModel()
 ) {
     val state = viewModel.uiState
     val context = LocalContext.current
 
-    Scaffold { innerPadding ->
+    Scaffold(
+        topBar = { Header(title = "INICIAR SESIÓN") },
+        bottomBar = { Footer(copyrightText = "© 2026 Paolicias.Sweet - Banquetería") }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -59,7 +65,9 @@ fun LoginScreen(
                     if (state.errorEmail != null) Icon(Icons.Default.Warning, contentDescription = "Error")
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -76,7 +84,9 @@ fun LoginScreen(
                 },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize()
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -85,7 +95,7 @@ fun LoginScreen(
                 onClick = {
                     viewModel.onLoginClick(context) {
                         Toast.makeText(context, "¡Bienvenido de nuevo!", Toast.LENGTH_SHORT).show()
-                        onNavigateToAgenda()
+                        onLoginSuccess()
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
