@@ -159,7 +159,7 @@ fun CotizacionScreen(
                         Text(text = "Tramo: ${state.tramoAplicado}")
                         Text(text = "Subtotal catering: $${state.subtotalMenu}")
                         Text(
-                            text = "Descuento tramo (${state.porcentajeDescuentoTramo}%): -$${state.descuentoEscalonado}"
+                            text = "Descuento tramo (${state.porcentajeDescuentoTramo}%): -${state.descuentoEscalonado}"
                         )
                         Text(text = "Pastelería fina / Torta: $${state.costoTortaPersonalizada}")
 

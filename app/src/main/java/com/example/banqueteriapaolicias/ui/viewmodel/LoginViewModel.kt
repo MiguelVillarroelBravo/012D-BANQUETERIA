@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.banqueteriapaolicias.data.local.database.AppDatabase
+import com.example.banqueteriapaolicias.data.database.AppDatabase
 import com.example.banqueteriapaolicias.model.LoginModel
 import kotlinx.coroutines.launch
 
@@ -34,7 +34,7 @@ class LoginViewModel : ViewModel() {
 
         if (errorEmail == null && errorPassword == null) {
             viewModelScope.launch {
-                val db = com.example.banqueteriapaolicias.data.local.database.AppDatabase.getDatabase(context)
+                val db = com.example.banqueteriapaolicias.data.database.AppDatabase.getDatabase(context)
                 val user = db.usuarioDao().getUserByEmail(s.email)
 
                 if (user != null && user.clave == s.password) {

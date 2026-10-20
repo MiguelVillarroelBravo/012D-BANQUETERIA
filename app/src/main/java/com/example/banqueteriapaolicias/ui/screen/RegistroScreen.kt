@@ -1,6 +1,7 @@
 package com.example.banqueteriapaolicias.ui.screen
 
 import android.widget.Toast
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +29,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.banqueteriapaolicias.ui.components.Footer
+import com.example.banqueteriapaolicias.ui.components.Header
 import com.example.banqueteriapaolicias.ui.viewmodel.RegistroViewModel
 
 @Composable
@@ -38,7 +41,10 @@ fun RegistroScreen(
     val state = viewModel.uiState
     val context = LocalContext.current
 
-    Scaffold { innerPadding ->
+    Scaffold(
+        topBar = { Header(title = "REGISTRO DE USUARIO") },
+        bottomBar = { Footer(copyrightText = "© 2026 Paolicias.Sweet - Banquetería") }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -92,7 +98,11 @@ fun RegistroScreen(
             Button(
                 onClick = {
                     viewModel.onRegisterClick(context) {
-                        Toast.makeText(context, "Registro exitoso. Por favor inicia sesión.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "Registro exitoso. Por favor inicia sesión.",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         onNavigateToLogin()
                     }
                 },
@@ -125,7 +135,9 @@ private fun CampoFormulario(
         },
         visualTransformation = if (esClave) PasswordVisualTransformation() else VisualTransformation.None,
         keyboardOptions = KeyboardOptions(keyboardType = tipoTeclado),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize()
     )
     Spacer(modifier = Modifier.height(8.dp))
 }
