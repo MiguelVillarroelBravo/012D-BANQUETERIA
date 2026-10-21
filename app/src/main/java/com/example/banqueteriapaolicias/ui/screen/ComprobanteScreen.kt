@@ -39,8 +39,6 @@ fun ComprobanteScreen(
     onBack: () -> Unit = {}
 ) {
     val context = LocalContext.current
-
-
     var foto by remember { mutableStateOf<Bitmap?>(null) }
 
     Scaffold(
@@ -86,7 +84,7 @@ fun ComprobanteScreen(
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(text = "Estado: Pendiente de validación")
                     Text(
-                        text = "Monto a abonar: $42.500",
+                        text = "Monto a abonar: el 50% de tu cotización",
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
@@ -94,7 +92,6 @@ fun ComprobanteScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-
 
             ComprobanteCamara(
                 foto = foto,
@@ -105,7 +102,6 @@ fun ComprobanteScreen(
 
             Button(
                 onClick = {
-
                     vibrar(context, 500L)
                     Toast.makeText(
                         context,
@@ -114,7 +110,6 @@ fun ComprobanteScreen(
                     ).show()
                     onNavigateToAgenda()
                 },
-
                 enabled = foto != null,
                 modifier = Modifier.fillMaxWidth()
             ) {

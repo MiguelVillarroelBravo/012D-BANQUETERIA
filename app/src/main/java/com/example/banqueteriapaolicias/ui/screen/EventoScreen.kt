@@ -1,6 +1,7 @@
 package com.example.banqueteriapaolicias.ui.screen
 
 import android.widget.Toast
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -27,6 +28,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.banqueteriapaolicias.ui.components.Footer
+import com.example.banqueteriapaolicias.ui.components.Header
 import com.example.banqueteriapaolicias.ui.viewmodel.EventoViewModel
 
 @Composable
@@ -38,7 +41,10 @@ fun EventoScreen(
     val state = viewModel.uiState
     val context = LocalContext.current
 
-    Scaffold { innerPadding ->
+    Scaffold(
+        topBar = { Header(title = "RESERVA DE EVENTO") },
+        bottomBar = { Footer(copyrightText = "© 2026 Paolicias.Sweet - Banquetería") }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -65,35 +71,30 @@ fun EventoScreen(
                 error = state.errorNombreSolicitante,
                 onChange = viewModel::onNombreSolicitanteChanged
             )
-
             CampoFormularioEvento(
                 valor = state.empresaOrganizacion,
                 etiqueta = "Empresa o institución (Opcional si es evento social)",
                 error = null,
                 onChange = viewModel::onEmpresaChanged
             )
-
             CampoFormularioEvento(
                 valor = state.tipoEvento,
                 etiqueta = "Tipo de servicio (Seminario, Lanzamiento, Cumpleaños)",
                 error = state.errorTipoEvento,
                 onChange = viewModel::onTipoEventoChanged
             )
-
             CampoFormularioEvento(
                 valor = state.fechaEvento,
                 etiqueta = "Fecha del evento (DD/MM/AAAA)",
                 error = state.errorFechaEvento,
                 onChange = viewModel::onFechaEventoChanged
             )
-
             CampoFormularioEvento(
                 valor = state.bloqueHorario,
                 etiqueta = "Bloque horario (Ej: 10:00 - 14:00 hrs)",
                 error = state.errorBloqueHorario,
                 onChange = viewModel::onBloqueHorarioChanged
             )
-
             CampoFormularioEvento(
                 valor = state.cantidadAsistentes,
                 etiqueta = "Cantidad exacta de asistentes (10 a 100 personas)",
@@ -101,7 +102,6 @@ fun EventoScreen(
                 onChange = viewModel::onCantidadAsistentesChanged,
                 tipoTeclado = KeyboardType.Number
             )
-
             CampoFormularioEvento(
                 valor = state.restriccionesAlimentarias,
                 etiqueta = "Restricciones alimentarias (Alergias, celíacos, vegetarianos)",
@@ -167,7 +167,9 @@ private fun CampoFormularioEvento(
             if (error != null) Icon(Icons.Default.Warning, contentDescription = "Error")
         },
         keyboardOptions = KeyboardOptions(keyboardType = tipoTeclado),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize()
     )
     Spacer(modifier = Modifier.height(8.dp))
 }

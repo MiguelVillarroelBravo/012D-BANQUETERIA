@@ -2,6 +2,7 @@ package com.example.banqueteriapaolicias.ui.screen
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +34,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.banqueteriapaolicias.ui.components.Footer
+import com.example.banqueteriapaolicias.ui.components.Header
 import com.example.banqueteriapaolicias.ui.viewmodel.CotizacionViewModel
 
 @Composable
@@ -44,7 +47,10 @@ fun CotizacionScreen(
     val state = viewModel.uiState
     val context = LocalContext.current
 
-    Scaffold { innerPadding ->
+    Scaffold(
+        topBar = { Header(title = "COTIZACIÓN") },
+        bottomBar = { Footer(copyrightText = "© 2026 Paolicias.Sweet - Banquetería") }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -78,7 +84,6 @@ fun CotizacionScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(4.dp))
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -102,7 +107,6 @@ fun CotizacionScreen(
                     Text("100 pers.")
                 }
             }
-
             Spacer(modifier = Modifier.height(8.dp))
 
             CampoFormularioCotizacion(
@@ -112,7 +116,6 @@ fun CotizacionScreen(
                 onChange = viewModel::onCantidadComensalesChanged,
                 tipoTeclado = KeyboardType.Number
             )
-
             CampoFormularioCotizacion(
                 valor = state.precioBaseUnitario,
                 etiqueta = "Precio unitario base por persona ($ CLP)",
@@ -156,10 +159,11 @@ fun CotizacionScreen(
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(8.dp))
+
                         Text(text = "Tramo: ${state.tramoAplicado}")
                         Text(text = "Subtotal catering: $${state.subtotalMenu}")
                         Text(
-                            text = "Descuento tramo (${state.porcentajeDescuentoTramo}%): -${state.descuentoEscalonado}"
+                            text = "Descuento tramo (${state.porcentajeDescuentoTramo}%): -$${state.descuentoEscalonado}"
                         )
                         Text(text = "Pastelería fina / Torta: $${state.costoTortaPersonalizada}")
 
@@ -234,7 +238,9 @@ private fun CampoFormularioCotizacion(
             if (error != null) Icon(Icons.Default.Warning, contentDescription = "Error")
         },
         keyboardOptions = KeyboardOptions(keyboardType = tipoTeclado),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize()
     )
     Spacer(modifier = Modifier.height(8.dp))
 }
