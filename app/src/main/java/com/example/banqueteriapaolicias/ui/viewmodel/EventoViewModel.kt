@@ -68,6 +68,7 @@ class EventoViewModel : ViewModel() {
             s.cantidadAsistentes.isBlank() -> "Ingresa la cantidad exacta de asistentes"
             asistentes == null || asistentes < 10 -> "El mínimo de atención es de 10 personas"
             asistentes > 100 -> "Capacidad máxima superada (Tope: 100 personas)"
+            asistentes % 10 != 0 -> "Los asistentes se cotizan en rangos de 10 en 10 (10, 20... 100)" // NUEVO
             else -> null
         }
 
