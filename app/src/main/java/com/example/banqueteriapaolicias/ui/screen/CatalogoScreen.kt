@@ -1,5 +1,6 @@
 package com.example.banqueteriapaolicias.ui.screen
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,6 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -15,18 +18,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.banqueteriapaolicias.ui.components.Footer
 import com.example.banqueteriapaolicias.ui.components.Header
 import com.example.banqueteriapaolicias.ui.components.ProductoCard
 import com.example.banqueteriapaolicias.ui.viewmodel.CatalogoViewModel
+import com.example.banqueteriapaolicias.ui.viewmodel.formatearClp
 
 @Composable
 fun CatalogoScreen(
-    onNavigateToEvento: () -> Unit = {},
+    onNavigateToEvento: (nombre: String, precioUnitario: Int) -> Unit = { _, _ -> },
     onBack: () -> Unit = {},
-    onLogout: () -> Unit = {},          // nuevo
+    onLogout: () -> Unit = {},
     viewModel: CatalogoViewModel = viewModel()
 ) {
     val state = viewModel.uiState
@@ -54,53 +59,76 @@ fun CatalogoScreen(
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Selecciona un servicio de banquetería o pastelería fina",
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            ProductoCard(
-                nombre = state.servicio1Nombre,
-                descripcion = state.servicio1Descripcion,
-                precio = state.servicio1Precio,
-                onCotizarClick = {
-                    viewModel.onCotizarServicioClick(state.servicio1Nombre, state.servicio1Precio) {
-                        onNavigateToEvento()
+            when {
+                state.isLoading -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator()
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "Cargando servicios...",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
                 }
-            )
 
-            ProductoCard(
-                nombre = state.servicio2Nombre,
-                descripcion = state.servicio2Descripcion,
-                precio = state.servicio2Precio,
-                onCotizarClick = {
-                    viewModel.onCotizarServicioClick(state.servicio2Nombre, state.servicio2Precio) {
-                        onNavigateToEvento()
+                state.errorMessage != null -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = state.errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Button(onClick = { viewModel.cargarServicios() }) {
+                            Text("Reintentar")
+                        }
                     }
                 }
-            )
 
-            ProductoCard(
-                nombre = state.servicio3Nombre,
-                descripcion = state.servicio3Descripcion,
-                precio = state.servicio3Precio,
-                onCotizarClick = {
-                    viewModel.onCotizarServicioClick(state.servicio3Nombre, state.servicio3Precio) {
-                        onNavigateToEvento()
-                    }
+                state.servicios.isEmpty() -> {
+                    Text(
+                        text = "No hay servicios disponibles en este momento.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(vertical = 24.dp)
+                    )
                 }
-            )
 
-            ProductoCard(
-                nombre = state.servicio4Nombre,
-                descripcion = state.servicio4Descripcion,
-                precio = state.servicio4Precio,
-                onCotizarClick = {
-                    viewModel.onCotizarServicioClick(state.servicio4Nombre, state.servicio4Precio) {
-                        onNavigateToEvento()
+                else -> {
+                    state.servicios.forEach { servicio ->
+                        ProductoCard(
+                            nombre = servicio.nombre,
+                            descripcion = servicio.descripcion,
+                            precio = formatearClp(servicio.precioUnitario),
+                            onCotizarClick = {
+                                viewModel.onCotizarServicioClick(servicio) { nombre, precioUnitario ->
+                                    onNavigateToEvento(nombre, precioUnitario)
+                                }
+                            }
+                        )
                     }
                 }
-            )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             OutlinedButton(
                 onClick = onLogout,
                 modifier = Modifier.fillMaxWidth()

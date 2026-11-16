@@ -34,7 +34,7 @@ import com.example.banqueteriapaolicias.ui.viewmodel.EventoViewModel
 
 @Composable
 fun EventoScreen(
-    onNavigateToCotizacion: () -> Unit = {},
+    onNavigateToCotizacion: (String) -> Unit = {},
     onBack: () -> Unit = {},
     viewModel: EventoViewModel = viewModel()
 ) {
@@ -128,7 +128,7 @@ fun EventoScreen(
                             "Datos del evento guardados. Calculando cotización...",
                             Toast.LENGTH_SHORT
                         ).show()
-                        onNavigateToCotizacion()
+                        onNavigateToCotizacion(state.cantidadAsistentes)
                     }
                 },
                 modifier = Modifier.fillMaxWidth()

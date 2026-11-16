@@ -16,5 +16,7 @@ data class CotizacionModel(
     val montoTotalCotizado: Int = 0,
     val montoAbonoCincuentaPorCiento: Int = 0,
     val dotacionEstimada: String = "",
-    val cotizacionLista: Boolean = false
+    val cotizacionLista: Boolean = false,
+    val isCalculating: Boolean = false,
+    val errorApi: String? = null
 )

@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -21,6 +22,7 @@ import com.example.banqueteriapaolicias.ui.screen.EventoScreen
 import com.example.banqueteriapaolicias.ui.screen.LoginScreen
 import com.example.banqueteriapaolicias.ui.screen.PlanificacionScreen
 import com.example.banqueteriapaolicias.ui.screen.RegistroScreen
+import com.example.banqueteriapaolicias.ui.viewmodel.ReservaSharedViewModel
 
 object Routes {
     const val LOGIN = "login"
@@ -55,6 +57,7 @@ fun AppNavigation() {
     val context = LocalContext.current
     val session = remember { SessionManager(context) }
     val navController = rememberNavController()
+    val sharedViewModel: ReservaSharedViewModel = viewModel()
 
     // Si ya hay sesión guardada, entra directo a la pantalla de su rol
     val startDestination = when (session.getRol()) {
@@ -100,7 +103,10 @@ fun AppNavigation() {
         composable(Routes.CATALOGO) {
             SoloRol(Roles.CLIENTE, session, cerrarSesion) {
                 CatalogoScreen(
-                    onNavigateToEvento = { navController.navigate(Routes.EVENTO) },
+                    onNavigateToEvento = { nombre, precioUnitario ->
+                        sharedViewModel.guardarServicioSeleccionado(nombre, precioUnitario)
+                        navController.navigate(Routes.EVENTO)
+                    },
                     onBack = { navController.popBackStack() },
                     onLogout = cerrarSesion
                 )
@@ -110,7 +116,10 @@ fun AppNavigation() {
         composable(Routes.EVENTO) {
             SoloRol(Roles.CLIENTE, session, cerrarSesion) {
                 EventoScreen(
-                    onNavigateToCotizacion = { navController.navigate(Routes.COTIZACION) },
+                    onNavigateToCotizacion = { cantidadAsistentes ->
+                        sharedViewModel.guardarCantidadAsistentes(cantidadAsistentes)
+                        navController.navigate(Routes.COTIZACION)
+                    },
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -119,7 +128,13 @@ fun AppNavigation() {
         composable(Routes.COTIZACION) {
             SoloRol(Roles.CLIENTE, session, cerrarSesion) {
                 CotizacionScreen(
-                    onNavigateToComprobante = { navController.navigate(Routes.COMPROBANTE) },
+                    menuInicial = sharedViewModel.servicioNombre,
+                    precioInicial = sharedViewModel.servicioPrecioUnitario,
+                    comensalesIniciales = sharedViewModel.cantidadAsistentes,
+                    onNavigateToComprobante = { montoAbono ->
+                        sharedViewModel.guardarMontoAbono(montoAbono)
+                        navController.navigate(Routes.COMPROBANTE)
+                    },
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -128,6 +143,7 @@ fun AppNavigation() {
         composable(Routes.COMPROBANTE) {
             SoloRol(Roles.CLIENTE, session, cerrarSesion) {
                 ComprobanteScreen(
+                    montoAbonoCincuentaPorCiento = sharedViewModel.montoAbonoCincuentaPorCiento,
                     onNavigateToAgenda = {
                         navController.navigate(Routes.CATALOGO) {
                             popUpTo(Routes.CATALOGO) { inclusive = true }

@@ -4,17 +4,40 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.banqueteriapaolicias.data.remote.CatalogoApiService
+import com.example.banqueteriapaolicias.data.remote.RetrofitClient
+import com.example.banqueteriapaolicias.data.remote.dto.CotizacionRequestDto
 import com.example.banqueteriapaolicias.model.CotizacionModel
+import kotlinx.coroutines.launch
+import org.json.JSONObject
+import retrofit2.HttpException
 
 class CotizacionViewModel : ViewModel() {
 
+    private val apiService: CatalogoApiService = RetrofitClient.create()
+
     var uiState by mutableStateOf(CotizacionModel())
         private set
+
+    fun prellenarDatos(menu: String, precioBase: Int?, comensales: String) {
+        uiState = uiState.copy(
+            menuSeleccionado = if (menu.isNotBlank()) menu else uiState.menuSeleccionado,
+            precioBaseUnitario = precioBase?.toString() ?: uiState.precioBaseUnitario,
+            cantidadComensales = if (comensales.isNotBlank()) comensales else uiState.cantidadComensales,
+            errorMenuSeleccionado = null,
+            errorPrecioBaseUnitario = null,
+            errorCantidadComensales = null,
+            errorApi = null,
+            cotizacionLista = false
+        )
+    }
 
     fun onMenuSeleccionadoChanged(valor: String) {
         uiState = uiState.copy(
             menuSeleccionado = valor,
             errorMenuSeleccionado = null,
+            errorApi = null,
             cotizacionLista = false
         )
     }
@@ -23,6 +46,7 @@ class CotizacionViewModel : ViewModel() {
         uiState = uiState.copy(
             cantidadComensales = valor,
             errorCantidadComensales = null,
+            errorApi = null,
             cotizacionLista = false
         )
     }
@@ -31,6 +55,7 @@ class CotizacionViewModel : ViewModel() {
         uiState = uiState.copy(
             precioBaseUnitario = valor,
             errorPrecioBaseUnitario = null,
+            errorApi = null,
             cotizacionLista = false
         )
     }
@@ -38,6 +63,7 @@ class CotizacionViewModel : ViewModel() {
     fun onIncluirTortaChanged(incluir: Boolean) {
         uiState = uiState.copy(
             incluirTortaPersonalizada = incluir,
+            errorApi = null,
             cotizacionLista = false
         )
     }
@@ -46,6 +72,7 @@ class CotizacionViewModel : ViewModel() {
         uiState = uiState.copy(
             cantidadComensales = rangoPersonas.toString(),
             errorCantidadComensales = null,
+            errorApi = null,
             cotizacionLista = false
         )
     }
@@ -78,48 +105,72 @@ class CotizacionViewModel : ViewModel() {
                 errorMenuSeleccionado = errorMenu,
                 errorCantidadComensales = errorComensales,
                 errorPrecioBaseUnitario = errorPrecio,
+                errorApi = null,
                 cotizacionLista = false
             )
             return
         }
 
-        val cant = comensales!!
-        val base = precioUnitario!!
-
-        // Tarifario escalonado según tramo de asistencia (10 en 10 hasta 100)
-        val (tramoTexto, porcentajeDesc) = when {
-            cant in 10..20 -> "Tramo Inicial (10 a 20 personas)" to 0
-            cant in 30..50 -> "Tramo Medio (30 a 50 personas)" to 5
-            cant in 60..80 -> "Tramo Corporativo (60 a 80 personas)" to 10
-            else -> "Tramo Máximo (90 a 100 personas)" to 15
-        }
-
-        val subtotal = cant * base
-        val descuento = (subtotal * porcentajeDesc) / 100
-        val valorTorta = if (s.incluirTortaPersonalizada) (cant * 1500) else 0
-        val total = (subtotal - descuento) + valorTorta
-        val abono50 = total / 2
-
-        // Estimación automática de dotación de personal (Garzones, Cocina, Reposteros)
-        val garzones = (cant / 20).coerceAtLeast(1)
-        val ayudantesCocina = if (cant >= 50) 2 else 1
-        val reposteros = if (s.incluirTortaPersonalizada) 1 else 0
-        val dotacion = "$garzones garzón(es), $ayudantesCocina ayudante(s) de cocina" +
-                if (reposteros > 0) ", $reposteros repostero(a)" else ""
-
-        uiState = s.copy(
-            errorMenuSeleccionado = null,
-            errorCantidadComensales = null,
-            errorPrecioBaseUnitario = null,
-            tramoAplicado = tramoTexto,
-            porcentajeDescuentoTramo = porcentajeDesc,
-            subtotalMenu = subtotal,
-            costoTortaPersonalizada = valorTorta,
-            descuentoEscalonado = descuento,
-            montoTotalCotizado = total,
-            montoAbonoCincuentaPorCiento = abono50,
-            dotacionEstimada = dotacion,
-            cotizacionLista = true
+        val request = CotizacionRequestDto(
+            menuSeleccionado = s.menuSeleccionado.trim(),
+            cantidadComensales = comensales!!,
+            precioBaseUnitario = precioUnitario!!,
+            incluirTortaPersonalizada = s.incluirTortaPersonalizada
         )
+
+        viewModelScope.launch {
+            uiState = uiState.copy(
+                isCalculating = true,
+                errorApi = null,
+                cotizacionLista = false
+            )
+            try {
+                val response = apiService.calcularCotizacion(request)
+                uiState = uiState.copy(
+                    errorMenuSeleccionado = null,
+                    errorCantidadComensales = null,
+                    errorPrecioBaseUnitario = null,
+                    tramoAplicado = response.tramoAplicado,
+                    porcentajeDescuentoTramo = response.porcentajeDescuentoTramo,
+                    subtotalMenu = response.subtotalMenu,
+                    costoTortaPersonalizada = response.costoTortaPersonalizada,
+                    descuentoEscalonado = response.descuentoEscalonado,
+                    montoTotalCotizado = response.montoTotalCotizado,
+                    montoAbonoCincuentaPorCiento = response.montoAbonoCincuentaPorCiento,
+                    dotacionEstimada = response.dotacionEstimada,
+                    cotizacionLista = true,
+                    isCalculating = false,
+                    errorApi = null
+                )
+            } catch (e: HttpException) {
+                val mensajeServidor = extraerMensajeErrorHttp(e)
+                uiState = uiState.copy(
+                    isCalculating = false,
+                    cotizacionLista = false,
+                    errorApi = mensajeServidor
+                )
+            } catch (e: Exception) {
+                uiState = uiState.copy(
+                    isCalculating = false,
+                    cotizacionLista = false,
+                    errorApi = "No se pudo conectar con el servidor de cotizaciones. Intenta nuevamente."
+                )
+            }
+        }
+    }
+
+    private fun extraerMensajeErrorHttp(e: HttpException): String {
+        return try {
+            val errorBody = e.response()?.errorBody()?.string()
+            if (!errorBody.isNullOrBlank()) {
+                val json = JSONObject(errorBody)
+                json.optString("message").takeIf { it.isNotBlank() }
+                    ?: "Error del servidor (${e.code()})"
+            } else {
+                "Error del servidor (${e.code()})"
+            }
+        } catch (_: Exception) {
+            "Error del servidor (${e.code()})"
+        }
     }
 }

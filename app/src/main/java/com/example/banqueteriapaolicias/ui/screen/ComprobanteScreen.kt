@@ -18,6 +18,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -32,12 +33,17 @@ import com.example.banqueteriapaolicias.ui.viewmodel.ComprobanteViewModel
 
 @Composable
 fun ComprobanteScreen(
+    montoAbonoCincuentaPorCiento: Int? = null,
     onNavigateToAgenda: () -> Unit = {},
     onBack: () -> Unit = {},
     viewModel: ComprobanteViewModel = viewModel()
 ) {
     val state = viewModel.uiState
     val context = LocalContext.current
+
+    LaunchedEffect(montoAbonoCincuentaPorCiento) {
+        viewModel.actualizarMontoAbonar(montoAbonoCincuentaPorCiento)
+    }
 
     Scaffold(
         topBar = {

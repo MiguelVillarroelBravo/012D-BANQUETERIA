@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -19,6 +21,7 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,25 +30,39 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.banqueteriapaolicias.ui.components.Footer
 import com.example.banqueteriapaolicias.ui.components.Header
 import com.example.banqueteriapaolicias.ui.viewmodel.CotizacionViewModel
+import com.example.banqueteriapaolicias.ui.viewmodel.formatearClp
 
 @Composable
 fun CotizacionScreen(
-    onNavigateToComprobante: () -> Unit = {},
+    menuInicial: String = "",
+    precioInicial: Int? = null,
+    comensalesIniciales: String = "",
+    onNavigateToComprobante: (Int) -> Unit = {},
     onBack: () -> Unit = {},
     viewModel: CotizacionViewModel = viewModel()
 ) {
     val state = viewModel.uiState
     val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.prellenarDatos(
+            menu = menuInicial,
+            precioBase = precioInicial,
+            comensales = comensalesIniciales
+        )
+    }
 
     Scaffold(
         topBar = { Header(title = "COTIZACIÓN") },
@@ -139,9 +156,29 @@ fun CotizacionScreen(
 
             Button(
                 onClick = { viewModel.onCalcularCotizacionClick() },
+                enabled = !state.isCalculating,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Calcular Tarifario y Abono 50%")
+                if (state.isCalculating) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = "Calculando en servidor...")
+                } else {
+                    Text(text = "Calcular Tarifario y Abono 50%")
+                }
+            }
+
+            if (state.errorApi != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = state.errorApi,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -161,21 +198,21 @@ fun CotizacionScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(text = "Tramo: ${state.tramoAplicado}")
-                        Text(text = "Subtotal catering: $${state.subtotalMenu}")
+                        Text(text = "Subtotal catering: ${formatearClp(state.subtotalMenu)}")
                         Text(
-                            text = "Descuento tramo (${state.porcentajeDescuentoTramo}%): -$${state.descuentoEscalonado}"
+                            text = "Descuento tramo (${state.porcentajeDescuentoTramo}%): -${formatearClp(state.descuentoEscalonado)}"
                         )
-                        Text(text = "Pastelería fina / Torta: $${state.costoTortaPersonalizada}")
+                        Text(text = "Pastelería fina / Torta: ${formatearClp(state.costoTortaPersonalizada)}")
 
                         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                         Text(
-                            text = "Monto Total Cotizado: $${state.montoTotalCotizado}",
+                            text = "Monto Total Cotizado: ${formatearClp(state.montoTotalCotizado)}",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Abono obligatorio (50%) para bloquear fecha: $${state.montoAbonoCincuentaPorCiento}",
+                            text = "Abono obligatorio (50%) para bloquear fecha: ${formatearClp(state.montoAbonoCincuentaPorCiento)}",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold
@@ -197,7 +234,7 @@ fun CotizacionScreen(
                                     "Redirigiendo para adjuntar comprobante del 50%...",
                                     Toast.LENGTH_SHORT
                                 ).show()
-                                onNavigateToComprobante()
+                                onNavigateToComprobante(state.montoAbonoCincuentaPorCiento)
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {

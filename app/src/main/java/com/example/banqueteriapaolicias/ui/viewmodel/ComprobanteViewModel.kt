@@ -12,6 +12,12 @@ class ComprobanteViewModel : ViewModel() {
     var uiState by mutableStateOf(ComprobanteModel())
         private set
 
+    fun actualizarMontoAbonar(montoAbono: Int?) {
+        if (montoAbono != null) {
+            uiState = uiState.copy(montoAbonar = "${formatearClp(montoAbono)} CLP")
+        }
+    }
+
     fun onFotoCapturada(nuevaFoto: Bitmap) {
         uiState = uiState.copy(
             foto = nuevaFoto,
