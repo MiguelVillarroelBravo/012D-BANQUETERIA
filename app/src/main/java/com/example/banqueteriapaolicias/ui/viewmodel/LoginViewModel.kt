@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.banqueteriapaolicias.data.database.AppDatabase
+import com.example.banqueteriapaolicias.data.session.SessionManager
 import com.example.banqueteriapaolicias.model.LoginModel
 import kotlinx.coroutines.launch
 
@@ -24,7 +25,7 @@ class LoginViewModel : ViewModel() {
         uiState = uiState.copy(password = password, errorPassword = null)
     }
 
-    fun onLoginClick(context: Context, onSuccess: () -> Unit) {
+    fun onLoginClick(context: Context, onSuccess: (String) -> Unit) {
         val s = uiState
 
         val errorEmail = if (!Patterns.EMAIL_ADDRESS.matcher(s.email).matches()) "Correo no válido" else null
@@ -34,11 +35,12 @@ class LoginViewModel : ViewModel() {
 
         if (errorEmail == null && errorPassword == null) {
             viewModelScope.launch {
-                val db = com.example.banqueteriapaolicias.data.database.AppDatabase.getDatabase(context)
-                val user = db.usuarioDao().getUserByEmail(s.email)
+                val db = AppDatabase.getDatabase(context)
+                val user = db.usuarioDao().getUserByEmail(s.email.trim())
 
                 if (user != null && user.clave == s.password) {
-                    onSuccess()
+                    SessionManager(context).saveSession(user.correo, user.rol)
+                    onSuccess(user.rol)
                 } else {
                     uiState = uiState.copy(errorPassword = "Correo o contraseña incorrectos")
                 }

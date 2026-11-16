@@ -5,32 +5,74 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.banqueteriapaolicias.data.session.SessionManager
+import com.example.banqueteriapaolicias.model.Roles
+import com.example.banqueteriapaolicias.ui.screen.AdminHomeScreen
 import com.example.banqueteriapaolicias.ui.screen.CatalogoScreen
 import com.example.banqueteriapaolicias.ui.screen.ComprobanteScreen
 import com.example.banqueteriapaolicias.ui.screen.CotizacionScreen
 import com.example.banqueteriapaolicias.ui.screen.EventoScreen
 import com.example.banqueteriapaolicias.ui.screen.LoginScreen
+import com.example.banqueteriapaolicias.ui.screen.PlanificacionScreen
 import com.example.banqueteriapaolicias.ui.screen.RegistroScreen
 
 object Routes {
     const val LOGIN = "login"
     const val REGISTRO = "registro"
+
+    // Rol CLIENTE
     const val CATALOGO = "catalogo"
     const val EVENTO = "evento"
     const val COTIZACION = "cotizacion"
     const val COMPROBANTE = "comprobante"
+
+    const val ADMIN_HOME = "admin_home"
+    const val PLANIFICACION = "planificacion"
+}
+
+@Composable
+private fun SoloRol(
+    rolRequerido: String,
+    session: SessionManager,
+    onDenegado: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    if (session.getRol() == rolRequerido) {
+        content()
+    } else {
+        LaunchedEffect(Unit) { onDenegado() }
+    }
 }
 
 @Composable
 fun AppNavigation() {
+    val context = LocalContext.current
+    val session = remember { SessionManager(context) }
     val navController = rememberNavController()
+
+    // Si ya hay sesión guardada, entra directo a la pantalla de su rol
+    val startDestination = when (session.getRol()) {
+        Roles.ADMIN -> Routes.ADMIN_HOME
+        Roles.CLIENTE -> Routes.CATALOGO
+        else -> Routes.LOGIN
+    }
+
+    val cerrarSesion: () -> Unit = {
+        session.clear()
+        navController.navigate(Routes.LOGIN) {
+            popUpTo(0) { inclusive = true }
+        }
+    }
 
     NavHost(
         navController = navController,
-        startDestination = Routes.LOGIN,
+        startDestination = startDestination,
         enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
         exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut() },
         popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn() },
@@ -39,45 +81,76 @@ fun AppNavigation() {
         composable(Routes.LOGIN) {
             LoginScreen(
                 onNavigateToRegister = { navController.navigate(Routes.REGISTRO) },
-                onLoginSuccess = {
-                    navController.navigate(Routes.CATALOGO) {
+                onLoginSuccess = { rol ->
+                    val destino = if (rol == Roles.ADMIN) Routes.ADMIN_HOME else Routes.CATALOGO
+                    navController.navigate(destino) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
                 }
             )
         }
+
         composable(Routes.REGISTRO) {
             RegistroScreen(
                 onNavigateToLogin = { navController.popBackStack() }
             )
         }
+
+
         composable(Routes.CATALOGO) {
-            CatalogoScreen(
-                onNavigateToEvento = { navController.navigate(Routes.EVENTO) },
-                onBack = { navController.popBackStack() }
-            )
+            SoloRol(Roles.CLIENTE, session, cerrarSesion) {
+                CatalogoScreen(
+                    onNavigateToEvento = { navController.navigate(Routes.EVENTO) },
+                    onBack = { navController.popBackStack() },
+                    onLogout = cerrarSesion
+                )
+            }
         }
+
         composable(Routes.EVENTO) {
-            EventoScreen(
-                onNavigateToCotizacion = { navController.navigate(Routes.COTIZACION) },
-                onBack = { navController.popBackStack() }
-            )
+            SoloRol(Roles.CLIENTE, session, cerrarSesion) {
+                EventoScreen(
+                    onNavigateToCotizacion = { navController.navigate(Routes.COTIZACION) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
         }
+
         composable(Routes.COTIZACION) {
-            CotizacionScreen(
-                onNavigateToComprobante = { navController.navigate(Routes.COMPROBANTE) },
-                onBack = { navController.popBackStack() }
-            )
+            SoloRol(Roles.CLIENTE, session, cerrarSesion) {
+                CotizacionScreen(
+                    onNavigateToComprobante = { navController.navigate(Routes.COMPROBANTE) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
         }
+
         composable(Routes.COMPROBANTE) {
-            ComprobanteScreen(
-                onNavigateToAgenda = {
-                    navController.navigate(Routes.CATALOGO) {
-                        popUpTo(Routes.CATALOGO) { inclusive = true }
-                    }
-                },
-                onBack = { navController.popBackStack() }
-            )
+            SoloRol(Roles.CLIENTE, session, cerrarSesion) {
+                ComprobanteScreen(
+                    onNavigateToAgenda = {
+                        navController.navigate(Routes.CATALOGO) {
+                            popUpTo(Routes.CATALOGO) { inclusive = true }
+                        }
+                    },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+        }
+
+        composable(Routes.ADMIN_HOME) {
+            SoloRol(Roles.ADMIN, session, cerrarSesion) {
+                AdminHomeScreen(
+                    onNavigateToPlanificacion = { navController.navigate(Routes.PLANIFICACION) },
+                    onLogout = cerrarSesion
+                )
+            }
+        }
+
+        composable(Routes.PLANIFICACION) {
+            SoloRol(Roles.ADMIN, session, cerrarSesion) {
+                PlanificacionScreen(onBack = { navController.popBackStack() })
+            }
         }
     }
 }
