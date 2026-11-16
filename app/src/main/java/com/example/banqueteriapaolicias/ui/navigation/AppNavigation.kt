@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.banqueteriapaolicias.data.session.SessionManager
 import com.example.banqueteriapaolicias.model.Roles
+import com.example.banqueteriapaolicias.ui.screen.AdminCatalogoScreen
 import com.example.banqueteriapaolicias.ui.screen.AdminHomeScreen
 import com.example.banqueteriapaolicias.ui.screen.CatalogoScreen
 import com.example.banqueteriapaolicias.ui.screen.ComprobanteScreen
@@ -35,6 +36,7 @@ object Routes {
     const val COMPROBANTE = "comprobante"
 
     const val ADMIN_HOME = "admin_home"
+    const val ADMIN_CATALOGO = "admin_catalogo"
     const val PLANIFICACION = "planificacion"
 }
 
@@ -158,8 +160,15 @@ fun AppNavigation() {
             SoloRol(Roles.ADMIN, session, cerrarSesion) {
                 AdminHomeScreen(
                     onNavigateToPlanificacion = { navController.navigate(Routes.PLANIFICACION) },
+                    onNavigateToAdminCatalogo = { navController.navigate(Routes.ADMIN_CATALOGO) },
                     onLogout = cerrarSesion
                 )
+            }
+        }
+
+        composable(Routes.ADMIN_CATALOGO) {
+            SoloRol(Roles.ADMIN, session, cerrarSesion) {
+                AdminCatalogoScreen(onBack = { navController.popBackStack() })
             }
         }
 

@@ -21,6 +21,7 @@ import com.example.banqueteriapaolicias.ui.components.Header
 @Composable
 fun AdminHomeScreen(
     onNavigateToPlanificacion: () -> Unit = {},
+    onNavigateToAdminCatalogo: () -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
     Scaffold(
@@ -39,6 +40,14 @@ fun AdminHomeScreen(
                 style = MaterialTheme.typography.headlineMedium
             )
             Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = onNavigateToAdminCatalogo,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Gestión de Catálogo y Precios")
+            }
+            Spacer(modifier = Modifier.height(12.dp))
 
             Button(
                 onClick = onNavigateToPlanificacion,
