@@ -37,9 +37,9 @@ fun ComprobanteCamara(
     val context = LocalContext.current
 
     val camaraLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.TakePicturePreview()
-    ) { bitmap: Bitmap? ->
-        bitmap?.let(onFotoCapturada)
+                ActivityResultContracts.TakePicturePreview()
+                ) { bitmap: Bitmap? ->
+            bitmap?.let(onFotoCapturada)
     }
 
     val permisoLauncher = rememberLauncherForActivityResult(
