@@ -11,7 +11,10 @@ object RetrofitClient {
     // Emulador de Android Studio -> tu PC: 10.0.2.2
     // Celular físico en la misma red: IP local de tu PC (ej. http://192.168.1.50:8080/)
     // Backend en la nube: URL https de tu servicio desplegado (debe terminar en "/")
-    private const val BASE_URL = "https://zero12d-banqueteriacatalogo-service.onrender.com/"
+    private const val BASE_URL = "https://insumos-service.onrender.com/"
+
+    // Cambia esta URL por la que te dé Render para insumos-service
+    private const val INSUMOS_BASE_URL = "https://zero12d-banqueteriainsumos-service.onrender.com/"
 
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -31,5 +34,15 @@ object RetrofitClient {
             .build()
     }
 
+    val retrofitInsumos: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl(INSUMOS_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
     inline fun <reified T> create(): T = retrofit.create(T::class.java)
+
+    inline fun <reified T> createInsumos(): T = retrofitInsumos.create(T::class.java)
 }
