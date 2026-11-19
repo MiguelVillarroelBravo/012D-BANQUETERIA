@@ -21,11 +21,11 @@ import com.example.banqueteriapaolicias.ui.screen.ComprobanteScreen
 import com.example.banqueteriapaolicias.ui.screen.CotizacionScreen
 import com.example.banqueteriapaolicias.ui.screen.EventoScreen
 import com.example.banqueteriapaolicias.ui.screen.LoginScreen
+import com.example.banqueteriapaolicias.ui.screen.MisReservasScreen
 import com.example.banqueteriapaolicias.ui.screen.PlanificacionScreen
 import com.example.banqueteriapaolicias.ui.screen.RegistroScreen
 import com.example.banqueteriapaolicias.ui.viewmodel.ReservaSharedViewModel
 import com.example.banqueteriapaolicias.ui.viewmodel.ReservasViewModel
-import com.example.banqueteriapaolicias.ui.screen.MisReservasScreen
 
 object Routes {
     const val LOGIN = "login"
@@ -152,12 +152,21 @@ fun AppNavigation() {
                 ComprobanteScreen(
                     montoAbonoCincuentaPorCiento = sharedViewModel.montoAbonoCincuentaPorCiento,
                     onNavigateToAgenda = {
-                        navController.navigate(Routes.CATALOGO) {
-                            popUpTo(Routes.CATALOGO) { inclusive = true }
+                        navController.navigate(Routes.MIS_RESERVAS) {
+                            popUpTo(Routes.CATALOGO) { inclusive = false }
                         }
                     },
                     onBack = { navController.popBackStack() },
                     sharedViewModel = sharedViewModel,
+                    reservasViewModel = reservasViewModel
+                )
+            }
+        }
+
+        composable(Routes.MIS_RESERVAS) {
+            SoloRol(Roles.CLIENTE, session, cerrarSesion) {
+                MisReservasScreen(
+                    onBack = { navController.popBackStack() },
                     reservasViewModel = reservasViewModel
                 )
             }
