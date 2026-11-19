@@ -42,6 +42,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.banqueteriapaolicias.ui.components.Footer
 import com.example.banqueteriapaolicias.ui.components.Header
 import com.example.banqueteriapaolicias.ui.viewmodel.CotizacionViewModel
+import com.example.banqueteriapaolicias.ui.viewmodel.ReservaSharedViewModel
 import com.example.banqueteriapaolicias.ui.viewmodel.formatearClp
 
 @Composable
@@ -51,6 +52,7 @@ fun CotizacionScreen(
     comensalesIniciales: String = "",
     onNavigateToComprobante: (Int) -> Unit = {},
     onBack: () -> Unit = {},
+    sharedViewModel: ReservaSharedViewModel? = null,
     viewModel: CotizacionViewModel = viewModel()
 ) {
     val state = viewModel.uiState
@@ -229,6 +231,10 @@ fun CotizacionScreen(
 
                         Button(
                             onClick = {
+                                sharedViewModel?.guardarTotalesCotizacion(
+                                    montoTotal = state.montoTotalCotizado,
+                                    montoAbono = state.montoAbonoCincuentaPorCiento
+                                )
                                 Toast.makeText(
                                     context,
                                     "Redirigiendo para adjuntar comprobante del 50%...",
