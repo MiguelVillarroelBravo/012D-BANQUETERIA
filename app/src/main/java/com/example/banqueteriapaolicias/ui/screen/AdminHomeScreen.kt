@@ -22,6 +22,7 @@ import com.example.banqueteriapaolicias.ui.components.Header
 fun AdminHomeScreen(
     onNavigateToPlanificacion: () -> Unit = {},
     onNavigateToAdminCatalogo: () -> Unit = {},
+    onNavigateToReservasAdmin: () -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
     Scaffold(
@@ -40,6 +41,14 @@ fun AdminHomeScreen(
                 style = MaterialTheme.typography.headlineMedium
             )
             Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = onNavigateToReservasAdmin,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Agenda y Validación de Reservas")
+            }
+            Spacer(modifier = Modifier.height(12.dp))
 
             Button(
                 onClick = onNavigateToAdminCatalogo,
