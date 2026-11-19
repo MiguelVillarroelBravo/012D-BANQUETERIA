@@ -16,6 +16,7 @@ import com.example.banqueteriapaolicias.data.session.SessionManager
 import com.example.banqueteriapaolicias.model.Roles
 import com.example.banqueteriapaolicias.ui.screen.AdminCatalogoScreen
 import com.example.banqueteriapaolicias.ui.screen.AdminHomeScreen
+import com.example.banqueteriapaolicias.ui.screen.AdminReservasScreen
 import com.example.banqueteriapaolicias.ui.screen.CatalogoScreen
 import com.example.banqueteriapaolicias.ui.screen.ComprobanteScreen
 import com.example.banqueteriapaolicias.ui.screen.CotizacionScreen
@@ -38,8 +39,10 @@ object Routes {
     const val COMPROBANTE = "comprobante"
     const val MIS_RESERVAS = "mis_reservas"
 
+    // Rol ADMIN
     const val ADMIN_HOME = "admin_home"
     const val ADMIN_CATALOGO = "admin_catalogo"
+    const val ADMIN_RESERVAS = "admin_reservas"
     const val PLANIFICACION = "planificacion"
 }
 
@@ -177,6 +180,7 @@ fun AppNavigation() {
                 AdminHomeScreen(
                     onNavigateToPlanificacion = { navController.navigate(Routes.PLANIFICACION) },
                     onNavigateToAdminCatalogo = { navController.navigate(Routes.ADMIN_CATALOGO) },
+                    onNavigateToReservasAdmin = { navController.navigate(Routes.ADMIN_RESERVAS) },
                     onLogout = cerrarSesion
                 )
             }
@@ -185,6 +189,15 @@ fun AppNavigation() {
         composable(Routes.ADMIN_CATALOGO) {
             SoloRol(Roles.ADMIN, session, cerrarSesion) {
                 AdminCatalogoScreen(onBack = { navController.popBackStack() })
+            }
+        }
+
+        composable(Routes.ADMIN_RESERVAS) {
+            SoloRol(Roles.ADMIN, session, cerrarSesion) {
+                AdminReservasScreen(
+                    onBack = { navController.popBackStack() },
+                    reservasViewModel = reservasViewModel
+                )
             }
         }
 
