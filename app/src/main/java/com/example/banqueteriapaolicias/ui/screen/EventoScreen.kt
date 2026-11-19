@@ -31,11 +31,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.banqueteriapaolicias.ui.components.Footer
 import com.example.banqueteriapaolicias.ui.components.Header
 import com.example.banqueteriapaolicias.ui.viewmodel.EventoViewModel
+import com.example.banqueteriapaolicias.ui.viewmodel.ReservaSharedViewModel
 
 @Composable
 fun EventoScreen(
     onNavigateToCotizacion: (String) -> Unit = {},
     onBack: () -> Unit = {},
+    sharedViewModel: ReservaSharedViewModel? = null,
     viewModel: EventoViewModel = viewModel()
 ) {
     val state = viewModel.uiState
@@ -123,6 +125,14 @@ fun EventoScreen(
             Button(
                 onClick = {
                     viewModel.onConfirmarEventoClick {
+                        sharedViewModel?.guardarDatosEvento(
+                            tipoEvento = state.tipoEvento,
+                            fechaEvento = state.fechaEvento,
+                            bloqueHorario = state.bloqueHorario,
+                            cantidadAsistentes = state.cantidadAsistentes,
+                            restriccionesAlimentarias = state.restriccionesAlimentarias,
+                            observacionesLogisticas = state.observacionesLogisticas
+                        )
                         Toast.makeText(
                             context,
                             "Datos del evento guardados. Calculando cotización...",
