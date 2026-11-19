@@ -24,6 +24,7 @@ import com.example.banqueteriapaolicias.ui.screen.LoginScreen
 import com.example.banqueteriapaolicias.ui.screen.PlanificacionScreen
 import com.example.banqueteriapaolicias.ui.screen.RegistroScreen
 import com.example.banqueteriapaolicias.ui.viewmodel.ReservaSharedViewModel
+import com.example.banqueteriapaolicias.ui.viewmodel.ReservasViewModel
 
 object Routes {
     const val LOGIN = "login"
@@ -60,6 +61,7 @@ fun AppNavigation() {
     val session = remember { SessionManager(context) }
     val navController = rememberNavController()
     val sharedViewModel: ReservaSharedViewModel = viewModel()
+    val reservasViewModel: ReservasViewModel = viewModel()
 
     // Si ya hay sesión guardada, entra directo a la pantalla de su rol
     val startDestination = when (session.getRol()) {
@@ -101,7 +103,6 @@ fun AppNavigation() {
             )
         }
 
-
         composable(Routes.CATALOGO) {
             SoloRol(Roles.CLIENTE, session, cerrarSesion) {
                 CatalogoScreen(
@@ -122,7 +123,8 @@ fun AppNavigation() {
                         sharedViewModel.guardarCantidadAsistentes(cantidadAsistentes)
                         navController.navigate(Routes.COTIZACION)
                     },
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    sharedViewModel = sharedViewModel
                 )
             }
         }
@@ -137,7 +139,8 @@ fun AppNavigation() {
                         sharedViewModel.guardarMontoAbono(montoAbono)
                         navController.navigate(Routes.COMPROBANTE)
                     },
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    sharedViewModel = sharedViewModel
                 )
             }
         }
@@ -151,7 +154,9 @@ fun AppNavigation() {
                             popUpTo(Routes.CATALOGO) { inclusive = true }
                         }
                     },
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    sharedViewModel = sharedViewModel,
+                    reservasViewModel = reservasViewModel
                 )
             }
         }
