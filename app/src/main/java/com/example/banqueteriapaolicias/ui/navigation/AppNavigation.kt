@@ -25,6 +25,7 @@ import com.example.banqueteriapaolicias.ui.screen.PlanificacionScreen
 import com.example.banqueteriapaolicias.ui.screen.RegistroScreen
 import com.example.banqueteriapaolicias.ui.viewmodel.ReservaSharedViewModel
 import com.example.banqueteriapaolicias.ui.viewmodel.ReservasViewModel
+import com.example.banqueteriapaolicias.ui.screen.MisReservasScreen
 
 object Routes {
     const val LOGIN = "login"
