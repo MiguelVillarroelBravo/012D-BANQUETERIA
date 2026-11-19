@@ -36,6 +36,7 @@ object Routes {
     const val EVENTO = "evento"
     const val COTIZACION = "cotizacion"
     const val COMPROBANTE = "comprobante"
+    const val MIS_RESERVAS = "mis_reservas"
 
     const val ADMIN_HOME = "admin_home"
     const val ADMIN_CATALOGO = "admin_catalogo"
