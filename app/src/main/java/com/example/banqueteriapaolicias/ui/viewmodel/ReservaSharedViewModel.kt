@@ -23,6 +23,24 @@ class ReservaSharedViewModel : ViewModel() {
     var cantidadAsistentes by mutableStateOf("")
         private set
 
+    var tipoEvento by mutableStateOf("")
+        private set
+
+    var fechaEvento by mutableStateOf("")
+        private set
+
+    var bloqueHorario by mutableStateOf("")
+        private set
+
+    var restriccionesAlimentarias by mutableStateOf("")
+        private set
+
+    var observacionesLogisticas by mutableStateOf("")
+        private set
+
+    var montoTotalCotizado by mutableStateOf<Int?>(null)
+        private set
+
     var montoAbonoCincuentaPorCiento by mutableStateOf<Int?>(null)
         private set
 
@@ -33,6 +51,27 @@ class ReservaSharedViewModel : ViewModel() {
 
     fun guardarCantidadAsistentes(cantidad: String) {
         cantidadAsistentes = cantidad
+    }
+
+    fun guardarDatosEvento(
+        tipoEvento: String,
+        fechaEvento: String,
+        bloqueHorario: String,
+        cantidadAsistentes: String,
+        restriccionesAlimentarias: String,
+        observacionesLogisticas: String
+    ) {
+        this.tipoEvento = tipoEvento
+        this.fechaEvento = fechaEvento
+        this.bloqueHorario = bloqueHorario
+        this.cantidadAsistentes = cantidadAsistentes
+        this.restriccionesAlimentarias = restriccionesAlimentarias
+        this.observacionesLogisticas = observacionesLogisticas
+    }
+
+    fun guardarTotalesCotizacion(montoTotal: Int, montoAbono: Int) {
+        montoTotalCotizado = montoTotal
+        montoAbonoCincuentaPorCiento = montoAbono
     }
 
     fun guardarMontoAbono(montoAbono: Int) {
